@@ -24,9 +24,10 @@ public class App
 
     public void start()
     {
-        parkingLot();
-        //stack2();
-        //stack3();
+        // parkingLot();
+        // floodFill();
+        // stack2();
+        // stack3();
     }
 
     public void parkingLot()
@@ -48,23 +49,20 @@ public class App
                 System.out.println(parkingLot.toString());
                 System.out.println();
             }
-            else if (action < 0)
+            else if (action < 0 && parkingLot.contains(-action))
             {
-                while(parkingLot.peek() != -action && !parkingLot.isEmpty())
+                while (parkingLot.peek() != -action && !parkingLot.isEmpty())
                 {
                     street.push(parkingLot.pop());
                     System.out.println(street.toString());
                     System.out.println(parkingLot.toString());
                     System.out.println();
                 }
-                if(!parkingLot.isEmpty())
-                {
-                    parkingLot.pop();
-                    System.out.println(street.toString());
-                    System.out.println(parkingLot.toString());
-                    System.out.println();
-                }
-                while(!street.isEmpty())
+                parkingLot.pop();
+                System.out.println(street.toString());
+                System.out.println(parkingLot.toString());
+                System.out.println();
+                while (!street.isEmpty())
                 {
                     parkingLot.push(street.pop());
                     System.out.println(street.toString());
@@ -73,6 +71,77 @@ public class App
                 }
             }
         }
+    }
+
+    public void floodFill()
+    {
+        Scanner keyboard = new Scanner(System.in);
+        Deque<Coordinates> coordinates = new ArrayDeque<>();
+
+        int[][] map = new int[10][10];
+
+        for (int i = 0; i < 10; i++)
+        {
+            for (int j = 0; j < 10; j++)
+            {
+                System.out.print(map[i][j] + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+
+        System.out.println("Enter x and y coordinates: ");
+        coordinates.push(new Coordinates(keyboard.nextInt(), keyboard.nextInt()));
+
+        int order = 1;
+        while (!coordinates.isEmpty())
+        {
+            Coordinates a = coordinates.pop();
+            if(map[a.x][a.y] == 0)
+            {
+                map[a.x][a.y] = order;
+                order++;
+
+                if (a.y > 0)
+                {
+                    if (map[a.x][a.y - 1] == 0)
+                    {
+                        coordinates.push(new Coordinates(a.x, a.y - 1));
+                    }
+                }
+                if (a.y < 9)
+                {
+                    if(map[a.x][a.y + 1] == 0)
+                    {
+                        coordinates.push(new Coordinates(a.x, a.y + 1));
+                    }
+                }
+                if (a.x > 0)
+                {
+                    if(map[a.x - 1][a.y] == 0)
+                    {
+                        coordinates.push(new Coordinates(a.x - 1, a.y));
+                    }
+                }
+                if (a.x < 9)
+                {
+                    if(map[a.x + 1][a.y] == 0)
+                    {
+                        coordinates.push(new Coordinates(a.x + 1, a.y));
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < 10; i++)
+        {
+            for (int j = 0; j < 10; j++)
+            {
+                System.out.print(map[i][j] + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
 
     public void stack2()
