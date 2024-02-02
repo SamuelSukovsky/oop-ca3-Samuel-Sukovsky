@@ -30,8 +30,9 @@ public class App
     {
         // parkingLot();
         // floodFill();
-        identifierCount();
-        // stack2();
+        // identifierCount("source.java");
+        // System.out.println(nestedTags("nestedTags.txt"));
+        airportFlights();
         // stack3();
     }
 
@@ -149,10 +150,10 @@ public class App
         System.out.println();
     }
 
-    public void identifierCount() throws FileNotFoundException
+    public void identifierCount(String path) throws FileNotFoundException
     {
         Map<String, HashSet<Integer>> map = new TreeMap<>();
-        File file = new File("source.java");
+        File file = new File(path);
         Scanner input = new Scanner(file);
         int line = 1;
         String token;
@@ -182,17 +183,85 @@ public class App
         }
     }
 
-    public void nestedTags() throws FileNotFoundException
+    public boolean nestedTags(String path) throws FileNotFoundException
     {
-        File file = new File("nestedTags.txt");
+        File file = new File(path);
         Scanner input = new Scanner(file);
         Deque<String> tags = new ArrayDeque<>();
+        Deque<String> closingTags = new ArrayDeque<>();
+        String tag;
 
-        String inputLine = input.nextLine();
-        while (inputLine.length() > 0)
+        while (input.hasNextLine())
         {
-
+            while (input.hasNext())
+            {
+                tag = input.next();
+                tags.push(tag.substring(1, tag.length() - 1));
+            }
         }
+
+        while(!tags.isEmpty())
+        {
+            tag = tags.pop();
+            if (tag.charAt(0) == '/')
+            {
+                closingTags.push(tag);
+            }
+            else if (closingTags.isEmpty() || !tag.equals(closingTags.pop().substring(1)))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void airportFlights()
+    {
+        Scanner keyboard = new Scanner(System.in);
+        Deque<String> takeoff = new ArrayDeque<>();
+        Deque<String> landing = new ArrayDeque<>();
+        String input;
+        String flight = "";
+
+        do
+        {
+            System.out.println("Takeoff: " + takeoff);
+            System.out.println("Landing: " + landing);
+            System.out.print("Enter command: ");
+            input = keyboard.nextLine();
+            if (input.contains(" "))
+            {
+                flight = input.substring(input.indexOf(" ") + 1);
+                input = input.substring(0, input.indexOf(" "));
+            }
+            switch (input)
+            {
+                case "takeoff" ->
+                {
+                    takeoff.add(flight);
+                }
+                case "land" ->
+                {
+                    landing.add(flight);
+                }
+                case "next" ->
+                {
+                    if(!landing.isEmpty())
+                    {
+                        System.out.println(landing.pop());
+                    }
+                    else if (!takeoff.isEmpty())
+                    {
+                        System.out.println(takeoff.pop());
+                    }
+                    else
+                    {
+                        System.out.println("No inbound or outbound flights.");
+                    }
+                }
+            }
+            System.out.println();
+        } while (!input.equals("quit"));
     }
 
     public void stack2()
