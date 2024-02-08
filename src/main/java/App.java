@@ -33,6 +33,7 @@ public class App
         // identifierCount("source.java");                      // question 3
         // System.out.println(nestedTags("nestedTags.txt"));    // question 4
         // airportFlights;                                      // question 5
+        // sharesTaxCalculation();                              // question 6
         //
     }
 
@@ -259,6 +260,80 @@ public class App
             }
             System.out.println();                           // separate line
         } while (!input.equals("quit"));                // break if the input is quit
+    }
+
+    public void sharesTaxCalculation()              // question 6
+    {
+        Scanner keyboard = new Scanner(System.in);      // get keyboard input
+        Deque<Block> shares = new ArrayDeque<>();       // create array deque fo the queue
+        boolean run = true;                             // set up variables
+        int quantity;
+        int remain;
+        float value;
+        float profit;
+        String input = null;
+        String action;
+
+        while (run)                                     // while running
+        {
+            System.out.println("Input command:");           // ask for a command
+            action = keyboard.nextLine();                   // store the input as an action
+            if (action.contains(" "))                       // if there are multiple words
+            {                                                   // split the first word off and store the rest as input
+                input = action.substring(action.indexOf(" ") + 1);
+                action = action.substring(0, action.indexOf(" "));
+            }
+
+            switch (action)                                 // switch using action
+            {
+                case "quit" ->                                  // case quit;
+                {
+                    run = false;                                    // end program
+                }
+                case "buy" ->                                   // case buy;
+                {                                                   // get quantity and value from input
+                    quantity = Integer.parseInt(input.substring(0, input.indexOf(" ")));
+                    value = Float.parseFloat(input.substring(input.indexOf(" ") + 1));
+                    shares.add(new Block(quantity, value));         // add the purchase to the queue
+                }
+                case "sell" ->                                  // case sell;
+                {                                                   // get quantity and value from input
+                    quantity = Integer.parseInt(input.substring(0, input.indexOf(" ")));
+                    value = Float.parseFloat(input.substring(input.indexOf(" ") + 1));
+                    profit = 0;                                     // reset profit value
+                    while (quantity > 0)                            // until the desired quantity is sold
+                    {
+                        if (!shares.isEmpty())                          // if there are shares to sell
+                        {
+                            remain = shares.peek().sell(quantity);          // get the amount of shares left in the block after selling the quantity
+                            if (remain > 0)                                 // if some remained
+                            {                                                   // calculate profit and add it
+                                profit += quantity * value - quantity * shares.peek().value;
+                            }
+                            else                                            // otherwise
+                            {                                                   // calculate profit and add it
+                                profit += (quantity + remain) * value - (quantity + remain) * shares.peek().value;
+                                shares.pop();                                   // pop the empty block from the stack
+                            }
+                            quantity = -remain;                             // set the quantity left to the difference
+                                                                            // (quantity remains positive if not enough shares were sold
+                                                                            // yet, or become 0/negative if enough were sold already)
+
+                            if (quantity <= 0)                              // if enough was sold
+                            {                                                   // print how much was sold and the resulting profit
+                                System.out.println("Sold " + input.substring(0, input.indexOf(" ")) + " shares for a profit of $" + profit);
+                            }
+                        }
+                        else                                            // if there aren't any shares left to sell
+                        {                                                   // calculate and print how many shares were actually sold, and the profit made
+                            remain = Integer.parseInt(input.substring(0, input.indexOf(" "))) - quantity;
+                            System.out.println("Sold " + remain + " shares for a profit of $" + profit);
+                            quantity = 0;                                   // end sell loop
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void stack2()
