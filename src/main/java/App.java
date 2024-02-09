@@ -35,6 +35,7 @@ public class App
         // airportFlights;                                      // question 5
         // sharesProfitCalculation();                           // question 6
         // multipleCompanyShares();                             // question 7
+        arithmeticCalculator();
         //
     }
 
@@ -425,6 +426,98 @@ public class App
                     }
                 }
             }
+        }
+    }
+
+    public void arithmeticCalculator()              // question 8
+    {
+        Deque<Float> values = new ArrayDeque<>();       // create a stack of float values
+        Deque<Character> operators = new ArrayDeque<>();// create a stack of operators
+        Scanner keyboard = new Scanner(System.in);      // get keyboard input
+
+        System.out.println("Enter an arithmetic operation: ");
+                                                        // save input into a string, removing spaces
+        String input = keyboard.nextLine().replaceAll(" ", "");
+        String num = "0";                               // create number to be input
+        String ops = "+-*/()";                          // a list of all operators
+        boolean lastNum = false;
+
+        while (input.length() > 0)                      // while the input hasn't been fully processed
+        {
+            if (!ops.contains(input.substring(0, 1)))       // if the first character of input isn't an operator
+            {
+                num += input.charAt(0);                         // add the character to the next number
+                input = input.substring(1);                     // cut the first character out
+                lastNum = true;                                 // the last character processed is a number
+            }
+            else                                            // otherwise
+            {                                                   // if the operator is '-' or isn't a beginning bracket and there is a number to push
+                if (input.charAt(0) == '-' || !"(".contains(input.substring(0, 1)) && lastNum)
+                {
+                    values.push(Float.parseFloat(num));             // push the number on the values stack
+                    num = "0";                                      // reset the number to 0
+                }                                                   // (the default num is 0 in order to resolve negative numbers correctly)
+                                                                    // (inputing "-2" is resolved as 0 - 2; = -2)
+                // System.out.println(values);
+                // System.out.println(operators);
+                                                                // if there are operators on stack and the new operator isn't a bracket
+                if (!operators.isEmpty() && operators.peek() != '(')
+                {
+                    if ("+-".contains(input.substring(0, 1)))       // if the new operator is '+' or '-' (low priority)
+                    {
+                        resolve(values, operators);                     // resolve the previous operation
+                    }                                               // else if the new operator is '*' or '/' (high priority) and the previous operator isn't low priority
+                    else if ("*/".contains(input.substring(0, 1)) && !"+-".contains("" + operators.peek()))
+                    {
+                        resolve(values, operators);                     // resolve the previous operation
+                    }
+                    else if (input.charAt(0) == ')')                // else if the operator is a closing bracket
+                    {
+                        while (operators.peek() != '(');                // continue resolving operations until the opening bracket is reached
+                        {
+                            resolve(values, operators);
+                        }
+                        resolve(values, operators);                     // resolve the bracket (removes it)
+                    }
+                }
+
+                operators.push(input.charAt(0));            // add the new operator on stack
+                input = input.substring(1);                 // cut the first character from the input
+                lastNum = false;                            // the last character processed wasn't a number
+            }
+        }
+        if(lastNum)                                 // if the last character processed was a number
+        {
+            values.push(Float.parseFloat(num));         // push the final number on the stack
+        }
+
+        while (!operators.isEmpty())                // while there are operations left
+        {
+            resolve(values, operators);                 // resolve operation
+            // System.out.println(values);
+            // System.out.println(operators);
+        }
+
+        System.out.println(values.pop());           // print the final value
+    }
+
+    public void resolve (Deque<Float> values, Deque<Character> operators)
+    {                                           // part of q8
+        char sign = operators.pop();                // pop the operator from the stack
+        if (!"()".contains("" + sign))              // if it isn't brackets
+        {
+            float b = values.pop();                     // pop the last two values
+            float a = values.pop();
+            // System.out.println(a + " " + sign + " " + b);
+            float calc = switch(sign)                   // perform the calculation
+            {
+                case '+' -> a + b;
+                case '-' -> a - b;
+                case '*' -> a * b;
+                default -> a / b;
+            };
+            // System.out.println(calc);
+            values.push(calc);                          // push the result on the values stack
         }
     }
 }
