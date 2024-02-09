@@ -30,10 +30,11 @@ public class App
     {
         // parkingLot();                                        // question 1
         // floodFill();                                         // question 2
-        // identifierCount("source.java");                      // question 3
+        // identifierCount("App.java");                         // question 3
         // System.out.println(nestedTags("nestedTags.txt"));    // question 4
         // airportFlights;                                      // question 5
-        // sharesTaxCalculation();                              // question 6
+        // sharesProfitCalculation();                           // question 6
+        // multipleCompanyShares();                             // question 7
         //
     }
 
@@ -262,7 +263,7 @@ public class App
         } while (!input.equals("quit"));                // break if the input is quit
     }
 
-    public void sharesTaxCalculation()              // question 6
+    public void sharesProfitCalculation()           // question 6
     {
         Scanner keyboard = new Scanner(System.in);      // get keyboard input
         Deque<Block> shares = new ArrayDeque<>();       // create array deque fo the queue
@@ -336,86 +337,94 @@ public class App
         }
     }
 
-    public void stack2()
+    public void multipleCompanyShares()             // question 7
     {
-        /*
-        // PUSH (add) elements on to stack - always at the top
-        System.out.println("Pushing, A, B, C on to the stack:");
-        myStack.push("A");    // top->      A]
-        myStack.push("B");    // top->    B|A]
-        myStack.push("C");    // top->  C|B|A]
+        Map<String, Deque<Block>> map = new TreeMap<>();// get a hashmap
+        Scanner keyboard = new Scanner(System.in);      // get keyboard input
+        boolean run = true;                             // set up variables
+        int quantity;
+        int remain;
+        float value;
+        float profit;
+        String action;
+        String company = null;
+        String input = null;
 
-        // PEEK - use myStack.peek() to get a reference to, but not remove, the top element
-        String topElement = myStack.peek();
-        System.out.println("stack.peek() = " + topElement ); // top->  C|B|A]
-
-        // POP - stack.pop() - return a reference to the top element and remove it from stack
-        //                     note that the object itself is not deleted,
-        //                     only the reference to it is removed from the stack
-        String str = myStack.pop();  // remove from head (top).   stack is now : top->  B|A]
-        System.out.println("value popped = " + str);
-
-        // PUSH is used to add an element on to the head/top of the stack
-        System.out.println("Pushing W on stack.");
-        myStack.push("W");    // top->  W|B|A]
-
-        System.out.println("Popping (removing) all elements: - repeatedly pop() until stack is empty ");
-        while (!myStack.isEmpty()) {
-            System.out.println(myStack.pop());
-        }
-        System.out.println("Stack has been emptied.");
-
-        // POPping an element from an empty stack will throw an exception
-        // myStack.pop();   // this line causes exception.
-        */
-
-        //TODO add code to this starter code as described below.
-        // 1. declare a stack to store objects of type String
-
-        Scanner in = new Scanner(System.in);
-
-        String word = "";
-        System.out.println("Stack sample stack2().");
-        System.out.println("Please enter a list of words, \"q\" to exit");
-
-        while (!word.equals("q"))
+        while (run)                                     // while running
         {
-            word = in.next();
-            if (!word.equals("q"))
+            System.out.println("Input command:");           // ask for a command
+            action = keyboard.nextLine();                   // store the input as an action
+            if (action.contains(" "))                       // if there are multiple words
+            {                                                   // split the first and second words off and store the rest as input
+                company = action.substring(action.indexOf(" ") + 1);
+                action = action.substring(0, action.indexOf(" "));
+
+                input = company.substring(company.indexOf(" ") + 1);
+                company = company.substring(0, company.indexOf(" "));
+            }
+
+            switch (action)                                 // switch using action
             {
-                //TODO 2. add the word to stack  (push())
+                case "quit" ->                                  // case quit;
+                {
+                    run = false;                                    // end program
+                }
+                case "buy" ->                                   // case buy;
+                {                                                   // get quantity and value from input
+                    quantity = Integer.parseInt(input.substring(0, input.indexOf(" ")));
+                    value = Float.parseFloat(input.substring(input.indexOf(" ") + 1));
+                    if (map.containsKey(company))                   // if the company has shares already
+                    {                                                   // add the new shares block to it
+                        map.get(company).add(new Block(quantity, value));
+                    }
+                    else                                            // otherwise
+                    {
+                        Deque<Block> shares = new ArrayDeque<>();       // create a new arrayDeque
+                        shares.add(new Block(quantity, value));         // add the line index
+                        map.put(company, shares);                       // store the token in the map
+                    }
+                }
+                case "sell" ->                                  // case sell;
+                {                                                   // get quantity and value from input
+                    quantity = Integer.parseInt(input.substring(0, input.indexOf(" ")));
+                    value = Float.parseFloat(input.substring(input.indexOf(" ") + 1));
+                    profit = 0;                                     // reset profit value
+                    while (quantity > 0)                            // until the desired quantity is sold
+                    {                                                   // if there are shares to sell
+                        if (map.containsKey(company) && !map.get(company).isEmpty())
+                        {
+                            remain = map.get(company).peek().sell(quantity);// get the amount of shares left in the block after selling the quantity
+                            if (remain > 0)                                 // if some remained
+                            {                                                   // calculate profit and add it
+                                profit += quantity * value - quantity * map.get(company).peek().value;
+                            }
+                            else                                            // otherwise
+                            {                                                   // calculate profit and add it
+                                profit += (quantity + remain) * value - (quantity + remain) * map.get(company).peek().value;
+                                map.get(company).pop();                         // pop the empty block from the stack
+                            }
+                            quantity = -remain;                             // set the quantity left to the difference
+                                                                            // (quantity remains positive if not enough shares were sold
+                                                                            // yet, or become 0/negative if enough were sold already)
+
+                            if (quantity <= 0)                              // if enough was sold
+                            {                                                   // print how much was sold and the resulting profit
+                                System.out.println("Sold " + input.substring(0, input.indexOf(" ")) + " shares for a profit of $" + profit);
+                            }
+                        }
+                        else                                            // if there aren't any shares left to sell
+                        {                                                   // calculate and print how many shares were actually sold, and the profit made
+                            remain = Integer.parseInt(input.substring(0, input.indexOf(" "))) - quantity;
+                            System.out.println("Sold " + remain + " shares for a profit of $" + profit);
+                            if (map.containsKey(company))                   // if there is an empty entry for the company
+                            {
+                                map.remove(company);                            // delete it
+                            }
+                            quantity = 0;                                   // end sell loop
+                        }
+                    }
+                }
             }
         }
-
-        System.out.println("Your words in reverse order are: ");
-        //TODO 3. Write code to retrieve words from the stack - one by one -
-        // and display them as they are removed.  (see loop is sample function above)
-
     }
-
-    public void stack3()
-    {
-        //TODO Write code that will take a decimal digit (e.g. 6)
-        // and will output the binary sequence for that number.
-        // A stack will be of use in this case!
-
-        /* Tip: decimal 6 is binary 110
-                6 % 2 = 0 <- (the last binary digit) - store it  (% = Modulus operator)
-                6 / 2 = 3   (integer division) - get the new value
-                3 % 2 = 1 <- (the second-last binary digit) - store it
-                3 / 2 = 1   (integer division, remainder is discarded)
-                1 % 2 = 1 <- (the next binary digit) - store it
-                1 / 2 = 0   (if zero, we are finished)
-        */
-        System.out.println("Stack sample stack3().");
-        int value = 6;
-
-        // Try your program using the number 153.
-        // Check that it gives the right binary number
-
-    }
-
-    //TODO  Implement the algorithm to balance brackets as described
-    // in the textbook extract in section 15.6.1 (see PDF) in moodle.
-
 }
