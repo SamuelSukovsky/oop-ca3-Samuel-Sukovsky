@@ -451,15 +451,17 @@ public class App
                 lastNum = true;                                 // the last character processed is a number
             }
             else                                            // otherwise
-            {                                                   // if the operator is '-' or isn't a beginning bracket and there is a number to push
-                if (input.charAt(0) == '-' || !"(".contains(input.substring(0, 1)) && lastNum)
+            {                                                   // if the operator is '(' and the previous character was a number or ')'
+                if (input.charAt(0) == '(' && (operators.peek() == ')' || lastNum))
+                {
+                    operators.push('*');                            // push '*' into operators
+                }                                                   // (inputing "2(2)(2)" is handled as 2 * (2) * (2) )
+                if (input.charAt(0) == '-' || lastNum)          // if the operator is '-' or there is a number to push
                 {
                     values.push(Float.parseFloat(num));             // push the number on the values stack
                     num = "0";                                      // reset the number to 0
                 }                                                   // (the default num is 0 in order to resolve negative numbers correctly)
                                                                     // (inputing "-2" is resolved as 0 - 2; = -2)
-                // System.out.println(values);
-                // System.out.println(operators);
                                                                 // if there are operators on stack and the new operator isn't a bracket
                 if (!operators.isEmpty() && operators.peek() != '(')
                 {
@@ -473,7 +475,7 @@ public class App
                     }
                     else if (input.charAt(0) == ')')                // else if the operator is a closing bracket
                     {
-                        while (operators.peek() != '(');                // continue resolving operations until the opening bracket is reached
+                        while (operators.peek() != '(')                 // continue resolving operations until the opening bracket is reached
                         {
                             resolve(values, operators);
                         }
@@ -484,6 +486,8 @@ public class App
                 operators.push(input.charAt(0));            // add the new operator on stack
                 input = input.substring(1);                 // cut the first character from the input
                 lastNum = false;                            // the last character processed wasn't a number
+                // System.out.println(values);
+                // System.out.println(operators);
             }
         }
         if(lastNum)                                 // if the last character processed was a number
@@ -494,8 +498,6 @@ public class App
         while (!operators.isEmpty())                // while there are operations left
         {
             resolve(values, operators);                 // resolve operation
-            // System.out.println(values);
-            // System.out.println(operators);
         }
 
         System.out.println(values.pop());           // print the final value
@@ -519,5 +521,7 @@ public class App
             // System.out.println(calc);
             values.push(calc);                          // push the result on the values stack
         }
+        // System.out.println(values);
+        // System.out.println(operators);
     }
 }
