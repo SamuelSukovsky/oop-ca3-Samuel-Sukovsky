@@ -1,20 +1,4 @@
-/**                                                 Nov 2023
- * A Stack is a LIFO Queue (Last-In First-Out)
- * It operates like a stack of plates - add at top and remove from top.
- * In this sample we use a Stack that uses underlying ArrayDeque.
- * ("Deque" stands for Double-Ended Queue)
- * We use a reference of Interface type Deque ('deck').
- *
- * (Use of the Java Stack class is no longer recommended, so, although
- * it is easier to read the code, we will not use it).
- */
-
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Scanner;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.HashSet;
+import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 
@@ -36,7 +20,8 @@ public class App
         // sharesProfitCalculation();                           // question 6
         // multipleCompanyShares();                             // question 7
         // arithmeticCalculator();                              // question 8
-         backtrackingMaze("maze.txt");                        // question 9
+        // backtrackingMaze("maze.txt");                        // question 9
+        // shortestDistance("cityMap.txt");                     // question 10
     }
 
     public void parkingLot()                        // question 1
@@ -584,6 +569,76 @@ public class App
                     System.out.println("Found a way out!");         // print success message
                 }
             }
+        }
+    }
+
+    // question 10
+    public void shortestDistance(String path) throws FileNotFoundException
+    {
+        PriorityQueue<DistanceTo> queue = new PriorityQueue<>();
+        Map<String, HashSet<DistanceTo>> map = new TreeMap<>();
+                                                        // create map for cities
+        File file = new File(path);                     // get source file
+        Scanner input = new Scanner(file);              // read the file
+        Scanner keyboard = new Scanner(System.in);      // get keyboard input
+        String line;
+        String city1;
+        String city2;
+        int distance;
+
+        while (input.hasNext())
+        {
+            line = input.nextLine();
+            city1 = line.substring(0, line.indexOf(" "));
+            line = line.substring(line.indexOf(" ") + 1);
+            city2 = line.substring(0, line.indexOf(" "));
+            distance = Integer.parseInt(line.substring(line.indexOf(" ") + 1));
+
+            if (!map.containsKey(city1))
+            {
+                HashSet<DistanceTo> set = new HashSet<>();
+                map.put(city1, set);
+            }
+            map.get(city1).add(new DistanceTo(city2, distance));
+
+            if (!map.containsKey(city2))
+            {
+                HashSet<DistanceTo> set = new HashSet<>();
+                map.put(city2, set);
+            }
+            map.get(city2).add(new DistanceTo(city1, distance));
+        }
+
+        System.out.println("List of cities:");
+        for (String a : map.keySet())
+        {
+            System.out.println(a);
+        }
+        System.out.println("\nEnter the starting city:");
+        city1 = keyboard.nextLine();
+
+        queue.add(new DistanceTo(city1, 0));
+        Map<String, Integer> shortestKnownDistance = new TreeMap<>();
+
+        while (!queue.isEmpty())
+        {
+            DistanceTo target = queue.remove();
+            city2 = target.getTarget();
+            distance = target.getDistance();
+            if (!shortestKnownDistance.containsKey(city2))
+            {
+                shortestKnownDistance.put(city2, distance);
+                for (DistanceTo a : map.get(city2))
+                {
+                    target = new DistanceTo(a.getTarget(), distance + a.getDistance());
+                    queue.add(target);
+                }
+            }
+        }
+
+        for (String a : shortestKnownDistance.keySet())
+        {
+            System.out.println(city1 + " to " + a + " - " + shortestKnownDistance.get(a));
         }
     }
 }
