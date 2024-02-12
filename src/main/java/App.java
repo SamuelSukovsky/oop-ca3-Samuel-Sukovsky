@@ -39,32 +39,33 @@ public class App
             if (action > 0)                                 // if adding a car
             {
                 parkingLot.push(action);                        // add the car
-                System.out.println(street.toString());          // print parking lot and street
-                System.out.println(parkingLot.toString());
-                System.out.println();
+                printCurrent(street, parkingLot);               // print parking lot and street
             }                                               // else if removing a car that is parked
             else if (action < 0 && parkingLot.contains(-action))
             {                                                   // while the next car in line isn't the requested car
                 while (parkingLot.peek() != -action && !parkingLot.isEmpty())
                 {
                     street.push(parkingLot.pop());                  // move the car to the street
-                    System.out.println(street.toString());          // print parking lot and street
-                    System.out.println(parkingLot.toString());
-                    System.out.println();
-                }                                               // afterwards (once the next car is the requested one)
-                parkingLot.pop();                               // remove the car
-                System.out.println(street.toString());          // print parking lot and street
-                System.out.println(parkingLot.toString());
-                System.out.println();
+                    printCurrent(street, parkingLot);               // print parking lot and street
+                }
+                                                                // afterwards (once the next car is the requested one)
+                parkingLot.pop();                                   // remove the car
+                printCurrent(street, parkingLot);                   // print parking lot and street
+
                 while (!street.isEmpty())                       // until the street is empty
                 {
                     parkingLot.push(street.pop());                  // park the next car back
-                    System.out.println(street.toString());          // print the parking lot and the street
-                    System.out.println(parkingLot.toString());
-                    System.out.println();
+                    printCurrent(street, parkingLot);               // print parking lot and street
                 }
             }
         }
+    }
+                                                    // part of q1
+    public void printCurrent (Deque<Integer> street, Deque<Integer> parkingLot)
+    {
+        System.out.println(street.toString());          // print parking lot and street
+        System.out.println(parkingLot.toString());
+        System.out.println();
     }
 
     public void floodFill()                         // question 2
@@ -77,7 +78,8 @@ public class App
         printMap(map);                                  // print the map
                                                         // get the starting coordinates
         System.out.println("Enter x and y coordinates: ");
-        coordinates.push(new Coordinates(keyboard.nextInt(), keyboard.nextInt()));
+        String input = keyboard.nextLine();
+        coordinates.push(new Coordinates(Integer.parseInt(input.substring(0, input.indexOf(" "))), Integer.parseInt(input.substring(input.indexOf(" ") + 1))));
                                                         // put them on the stack
         int order = 1;                                  // variable to count the placement order
         while (!coordinates.isEmpty())                  // while there are coordinates to place
@@ -576,67 +578,68 @@ public class App
     public void shortestDistance(String path) throws FileNotFoundException
     {
         PriorityQueue<DistanceTo> queue = new PriorityQueue<>();
+                                                        // create priority queue
         Map<String, HashSet<DistanceTo>> map = new TreeMap<>();
                                                         // create map for cities
         File file = new File(path);                     // get source file
         Scanner input = new Scanner(file);              // read the file
         Scanner keyboard = new Scanner(System.in);      // get keyboard input
-        String line;
+        String line;                                    // create repeated variables
         String city1;
         String city2;
         int distance;
 
-        while (input.hasNext())
+        while (input.hasNext())                         // while there are connections in the input file to add
         {
-            line = input.nextLine();
+            line = input.nextLine();                        // get the next line and split it into the two cities and distance
             city1 = line.substring(0, line.indexOf(" "));
             line = line.substring(line.indexOf(" ") + 1);
             city2 = line.substring(0, line.indexOf(" "));
             distance = Integer.parseInt(line.substring(line.indexOf(" ") + 1));
 
-            if (!map.containsKey(city1))
+            if (!map.containsKey(city1))                    // if the first city doesn't have an entry in the map yet
             {
-                HashSet<DistanceTo> set = new HashSet<>();
-                map.put(city1, set);
-            }
+                HashSet<DistanceTo> set = new HashSet<>();      // create a new hashset of DistanceTo
+                map.put(city1, set);                            // create a new map entry keyed to the first city
+            }                                               // add the new connection to the first city
             map.get(city1).add(new DistanceTo(city2, distance));
 
-            if (!map.containsKey(city2))
+            if (!map.containsKey(city2))                    // if the second city doesn't have an entry in the map yet
             {
-                HashSet<DistanceTo> set = new HashSet<>();
-                map.put(city2, set);
-            }
+                HashSet<DistanceTo> set = new HashSet<>();      // create a new hashset of DistanceTo
+                map.put(city2, set);                            // create a new map entry keyed to the second city
+            }                                               // add the new connection to the second city
             map.get(city2).add(new DistanceTo(city1, distance));
         }
 
-        System.out.println("List of cities:");
+        System.out.println("List of cities:");          // print the list of all cities on the map
         for (String a : map.keySet())
         {
             System.out.println(a);
         }
         System.out.println("\nEnter the starting city:");
-        city1 = keyboard.nextLine();
+        city1 = keyboard.nextLine();                    // get the starting city from keyboard input
 
-        queue.add(new DistanceTo(city1, 0));
+        queue.add(new DistanceTo(city1, 0));            // add the starting city to the queue
         Map<String, Integer> shortestKnownDistance = new TreeMap<>();
-
-        while (!queue.isEmpty())
+                                                        // create map with the shortest distances
+        while (!queue.isEmpty())                        // while there are entries in the queue left
         {
-            DistanceTo target = queue.remove();
-            city2 = target.getTarget();
-            distance = target.getDistance();
-            if (!shortestKnownDistance.containsKey(city2))
+            DistanceTo target = queue.remove();             // get the shortest path available
+            city2 = target.getTarget();                     // store the target's name
+            distance = target.getDistance();                // store current distance
+            if (!shortestKnownDistance.containsKey(city2))  // if the target wasn't stored yet
             {
-                shortestKnownDistance.put(city2, distance);
-                for (DistanceTo a : map.get(city2))
-                {
+                shortestKnownDistance.put(city2, distance);     // store the target
+                for (DistanceTo a : map.get(city2))             // for each connection from the target
+                {                                                   // get the connection
                     target = new DistanceTo(a.getTarget(), distance + a.getDistance());
-                    queue.add(target);
+                    queue.add(target);                              // add the connection to the queue
                 }
             }
         }
 
-        for (String a : shortestKnownDistance.keySet())
+        for (String a : shortestKnownDistance.keySet()) // print the distances from starting city to all cities
         {
             System.out.println(city1 + " to " + a + " - " + shortestKnownDistance.get(a));
         }

@@ -1,13 +1,13 @@
 public class DistanceTo implements Comparable<DistanceTo>
-{
-    private String target;
+{                                           // part of q10
+    private String target;                      // values
     private int distance;
-    public DistanceTo(String city, int dist)
+    public DistanceTo(String city, int dist)    // constructor method
     {
         target = city;
         distance = dist;
     }
-    public String getTarget()
+    public String getTarget()                   // getter methods
     {
         return target;
     }
@@ -15,8 +15,8 @@ public class DistanceTo implements Comparable<DistanceTo>
     {
         return distance;
     }
-    public int compareTo(DistanceTo other)
+    public int compareTo(DistanceTo other)      // compare to method
     {
-        return distance - other.distance;
+        return distance - other.distance;           // subtract the other's distance from this path's distance
     }
 }
