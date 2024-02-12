@@ -35,8 +35,8 @@ public class App
         // airportFlights;                                      // question 5
         // sharesProfitCalculation();                           // question 6
         // multipleCompanyShares();                             // question 7
-        arithmeticCalculator();
-        //
+        // arithmeticCalculator();                              // question 8
+         backtrackingMaze("maze.txt");                        // question 9
     }
 
     public void parkingLot()                        // question 1
@@ -89,15 +89,7 @@ public class App
                                                         // create a coordinate stack
         int[][] map = new int[10][10];                  // create a 10*10 map of 0s
 
-        for (int i = 0; i < 10; i++)                    // print the map
-        {
-            for (int j = 0; j < 10; j++)
-            {
-                System.out.print(map[i][j] + " ");
-            }
-            System.out.println();
-        }
-        System.out.println();
+        printMap(map);                                  // print the map
                                                         // get the starting coordinates
         System.out.println("Enter x and y coordinates: ");
         coordinates.push(new Coordinates(keyboard.nextInt(), keyboard.nextInt()));
@@ -106,35 +98,35 @@ public class App
         while (!coordinates.isEmpty())                  // while there are coordinates to place
         {
             Coordinates a = coordinates.pop();              // get the next coordinate
-            if(map[a.x][a.y] == 0)                          // if the coordinates cell is empty
+            if(map[a.y][a.x] == 0)                          // if the coordinates cell is empty
             {
-                map[a.x][a.y] = order;                          // fill it
+                map[a.y][a.x] = order;                          // fill it
                 order++;                                        // increment the tile count
 
                 if (a.y > 0)                                    // put all empty adjecent tiles on the stack
                 {
-                    if (map[a.x][a.y - 1] == 0)
+                    if (map[a.y - 1][a.x] == 0)
                     {
                         coordinates.push(new Coordinates(a.x, a.y - 1));
                     }
                 }
                 if (a.y < 9)
                 {
-                    if(map[a.x][a.y + 1] == 0)
+                    if(map[a.y + 1][a.x] == 0)
                     {
                         coordinates.push(new Coordinates(a.x, a.y + 1));
                     }
                 }
                 if (a.x > 0)
                 {
-                    if(map[a.x - 1][a.y] == 0)
+                    if(map[a.y][a.x - 1] == 0)
                     {
                         coordinates.push(new Coordinates(a.x - 1, a.y));
                     }
                 }
                 if (a.x < 9)
                 {
-                    if(map[a.x + 1][a.y] == 0)
+                    if(map[a.y][a.x + 1] == 0)
                     {
                         coordinates.push(new Coordinates(a.x + 1, a.y));
                     }
@@ -142,9 +134,14 @@ public class App
             }
         }
 
-        for (int i = 0; i < 10; i++)                    // print the map
+        printMap(map);                                  // print the map
+    }
+
+    public void printMap(int[][] map)               // part of q2 and q9
+    {
+        for (int i = 0; i < map.length; i++)                    // print the map
         {
-            for (int j = 0; j < 10; j++)
+            for (int j = 0; j < map[0].length; j++)
             {
                 System.out.print(map[i][j] + " ");
             }
@@ -523,5 +520,70 @@ public class App
         }
         // System.out.println(values);
         // System.out.println(operators);
+    }
+
+                                                    // question 9
+    public void backtrackingMaze(String path) throws FileNotFoundException
+    {
+        File file = new File(path);                     // get source file
+        Scanner input = new Scanner(file);              // read the file
+        Scanner keyboard = new Scanner(System.in);      // get keyboard input
+                                                        // create a coordinate stack
+        Deque<Coordinates> coordinates = new ArrayDeque<>();
+
+        int[][] map = new int[10][10];                  // create a 10*10 map of 0s
+
+        for (int i = 0; i < map.length; i++)            // take integers from a file and fill the map with them
+        {
+            Scanner line = new Scanner(input.nextLine());
+            for (int j = 0; j < map[0].length; j++)
+            {
+                map[i][j] = line.nextInt();
+            }
+        }
+
+        printMap(map);                                  // print the map
+
+        System.out.println("Enter starting x and y coordinates: ");
+                                                        // get starting coordinates put them on the stack
+        coordinates.push(new Coordinates(keyboard.nextInt(), keyboard.nextInt()));
+
+        while (!coordinates.isEmpty())                  // while there are coordinates to place
+        {
+            Coordinates a = coordinates.pop();              // get the next coordinate
+            if (map[a.y][a.x] == 0)                         // if the coordinates cell is empty
+            {
+                map[a.y][a.x] = 2;                              // fill it
+
+                if (a.y > 0 && a.y < 9 && a.x > 0 && a.x < 9)   // if the cell isn't on the edge
+                {                                                   // put all empty adjecent tiles on the stack
+                    if (map[a.y - 1][a.x] == 0)
+                    {
+                        coordinates.push(new Coordinates(a.x, a.y - 1));
+                    }
+
+                    if (map[a.y + 1][a.x] == 0)
+                    {
+                        coordinates.push(new Coordinates(a.x, a.y + 1));
+                    }
+
+                    if (map[a.y][a.x - 1] == 0)
+                    {
+                        coordinates.push(new Coordinates(a.x - 1, a.y));
+                    }
+
+                    if (map[a.y][a.x + 1] == 0)
+                    {
+                        coordinates.push(new Coordinates(a.x + 1, a.y));
+                    }
+                }
+                else                                            // otherwise
+                {
+                    coordinates.clear();                            // empty the stack
+                    printMap(map);                                  // print the map
+                    System.out.println("Found a way out!");         // print success message
+                }
+            }
+        }
     }
 }
